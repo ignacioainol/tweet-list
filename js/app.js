@@ -7,7 +7,15 @@ let tweets = [];
 eventListeners();
 
 function eventListeners() {
+    //cuando el usuario agrega un nuevo tweet
     formulario.addEventListener('submit', agregarTweet);
+
+    //cuando el documento esta listo
+    document.addEventListener('DOMContentLoaded', () => {
+        tweets = JSON.parse(localStorage.getItem('tweets')) || [];
+        console.log(tweets);
+        crearHTML();
+    });
 }
 
 //funciones
@@ -58,14 +66,31 @@ function mostrarError(error) {
 
 //muestra un listado de los tweets
 function crearHTML() {
+    limpiarHTML();
     if (tweets.length > 0) {
-        limpiarHTML();
+
         tweets.forEach(tweet => {
+            const btnEliminar = document.createElement('span');
+            btnEliminar.textContent = "X";
+            btnEliminar.classList.add("borrar-tweet");
+
             const li = document.createElement('li');
+
             li.textContent = tweet.tweet;
+            li.appendChild(btnEliminar);
             listaTweets.appendChild(li);
+
+            btnEliminar.onclick = () => {
+                borrarTweet(tweet.id);
+            }
         })
     }
+
+    sincronizarStorage();
+}
+
+function sincronizarStorage() {
+    localStorage.setItem('tweets', JSON.stringify(tweets));
 }
 
 //limpiar html
@@ -73,4 +98,10 @@ function limpiarHTML() {
     while (listaTweets.firstChild) {
         listaTweets.removeChild(listaTweets.firstChild);
     }
+}
+
+//elimina un tweet
+function borrarTweet(id) {
+    tweets = tweets.filter(tweet => tweet.id !== id);
+    crearHTML();
 }
